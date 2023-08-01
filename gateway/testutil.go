@@ -1705,6 +1705,7 @@ func BuildAPI(apiGens ...func(spec *APISpec)) (specs []*APISpec) {
 }
 
 func (gw *Gateway) LoadAPI(specs ...*APISpec) (out []*APISpec) {
+	var err error
 	gwConf := gw.GetConfig()
 	oldPath := gwConf.AppPath
 	gwConf.AppPath, err = ioutil.TempDir("", "apps")
