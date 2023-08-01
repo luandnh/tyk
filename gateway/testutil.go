@@ -1083,10 +1083,10 @@ func (s *Test) newGateway(genConf func(globalConf *config.Config)) *Gateway {
 	var err error
 	gwConfig.Storage.Database = rand.Intn(15)
 	gwConfig.AppPath, err = ioutil.TempDir("", "tyk-test-")
-
 	if err != nil {
 		panic(err)
 	}
+
 	gwConfig.EnableAnalytics = true
 	gwConfig.AnalyticsConfig.EnableGeoIP = true
 
@@ -1106,7 +1106,11 @@ func (s *Test) newGateway(genConf func(globalConf *config.Config)) *Gateway {
 	gwConfig.BundleBaseURL = testHttpBundles
 
 	// Used to store the test bundles:
-	testMiddlewarePath, _ := ioutil.TempDir("", "tyk-middleware-path")
+	testMiddlewarePath, err := ioutil.TempDir("", "tyk-middleware-path")
+	if err != nil {
+		panic(err)
+	}
+
 	gwConfig.MiddlewarePath = testMiddlewarePath
 
 	// force ipv4 for now, to work around the docker bug affecting
@@ -1703,7 +1707,10 @@ func BuildAPI(apiGens ...func(spec *APISpec)) (specs []*APISpec) {
 func (gw *Gateway) LoadAPI(specs ...*APISpec) (out []*APISpec) {
 	gwConf := gw.GetConfig()
 	oldPath := gwConf.AppPath
-	gwConf.AppPath, _ = ioutil.TempDir("", "apps")
+	gwConf.AppPath, err = ioutil.TempDir("", "apps")
+	if err != nil {
+		panic(err)
+	}
 	gw.SetConfig(gwConf, true)
 	defer func() {
 		globalConf := gw.GetConfig()
