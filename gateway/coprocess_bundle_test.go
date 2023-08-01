@@ -18,10 +18,6 @@ import (
 	"github.com/TykTechnologies/tyk/test"
 )
 
-var (
-	testBundlesPath = filepath.Join(testMiddlewarePath, "bundles")
-)
-
 var pkgPath string
 
 func init() {
@@ -60,6 +56,7 @@ func TestBundleLoader(t *testing.T) {
 	})
 
 	t.Run("Existing bundle with auth check", func(t *testing.T) {
+		testBundlesPath := filepath.Join(ts.Gw.GetConfig().MiddlewarePath, "bundles")
 		specs := ts.Gw.BuildAndLoadAPI(func(spec *APISpec) {
 			spec.CustomMiddlewareBundle = bundleID
 		})
