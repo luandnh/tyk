@@ -60,10 +60,10 @@ class TykDispatcher:
             raise Exception('Hook is not defined: {0}'.format(hook_name))
 
     def dispatch_hook(self, object_msg):
-        object = TykCoProcessObject(object_msg)
-        bundle_hash = object.spec['bundle_hash']
-        middleware, hook_handler = self.find_hook(bundle_hash, object.hook_name)
         try:
+            object = TykCoProcessObject(object_msg)
+            bundle_hash = object.spec['bundle_hash']
+            middleware, hook_handler = self.find_hook(bundle_hash, object.hook_name)
             object = middleware.process(hook_handler, object)
         except Exception as e:
             raise Exception("Hook '{0}' returned an error: {1}".format(object.hook_name, e))

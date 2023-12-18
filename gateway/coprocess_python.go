@@ -19,8 +19,6 @@ import (
 	"github.com/TykTechnologies/tyk/config"
 	"github.com/TykTechnologies/tyk/coprocess"
 
-	"github.com/golang/protobuf/proto"
-
 	python "github.com/TykTechnologies/tyk/dlpython"
 )
 import (
@@ -47,6 +45,7 @@ func (d *PythonDispatcher) Dispatch(object *coprocess.Object) (*coprocess.Object
 		return nil, err
 	}
 
+	log.Debug("marshalled object ", string(objectMsg))
 	pythonLock.Lock()
 	// Find the dispatch_hook:
 	dispatchHookFunc, err := python.PyObjectGetAttr(dispatcherInstance, "dispatch_hook")
@@ -125,7 +124,7 @@ func (d *PythonDispatcher) Dispatch(object *coprocess.Object) (*coprocess.Object
 	pythonLock.Unlock()
 
 	newObject := &coprocess.Object{}
-	err = proto.Unmarshal(newObjectBytes, newObject)
+	err = json.Unmarshal(newObjectBytes, newObject)
 	if err != nil {
 		log.WithFields(logrus.Fields{
 			"prefix": "python",

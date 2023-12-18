@@ -78,17 +78,19 @@ class TykMiddleware:
             handler(object, object.spec)
             return
         elif handler.arg_count == 5:
-            md = object.session.metadata
+            md = object.session['metadata']
             object.response = handler(object.request, object.response, object.session, md, object.spec)
         elif handler.arg_count == 4:
-            md = object.session.metadata
+            if 'metadata' not in object.session:
+                object.session['metadata'] = {}
+            md = object.session['metadata']
             object.request, object.session, md = handler(object.request, object.session, md, object.spec)
-            object.session.metadata.MergeFrom(md)
+            # object.session['metadata'].MergeFrom(md)
         elif handler.arg_count == 3:
             object.request, object.session = handler(object.request, object.session, object.spec)
         return object
 
     def parse_manifest(self):
         manifest_path = os.path.join(self.module_path, "manifest.json")
-        with open(manifest_path, 'r') as f:
+        with open(manifest_path, "r") as f:
             self.manifest = json.load(f)
