@@ -997,6 +997,14 @@
         },
         "customDomain": {
           "$ref": "#/definitions/X-Tyk-CustomDomain"
+        },
+        "customDomainCertificates": {
+          "type": "array",
+          "items": [
+            {
+              "type": "string"
+            }
+          ]
         }
       },
       "required": [

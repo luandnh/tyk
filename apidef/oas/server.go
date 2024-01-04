@@ -28,6 +28,12 @@ type Server struct {
 	// Tyk classic API definition: `domain`
 	CustomDomain *Domain `bson:"customDomain,omitempty" json:"customDomain,omitempty"`
 
+	// CustomDomainCertificates defines a field for specifying certificate IDs or file paths
+	// that the Gateway can utilize to dynamically load certificates for your custom domain.
+	//
+	// Tyk classic API definition: `certificates`
+	CustomDomainCertificates []string `bson:"customDomainCertificates" json:"customDomainCertificates"`
+
 	// DetailedActivityLogs configures detailed analytics recording.
 	DetailedActivityLogs *DetailedActivityLogs `bson:"detailedActivityLogs" json:"detailedActivityLogs"`
 }
@@ -62,6 +68,8 @@ func (s *Server) Fill(api apidef.APIDefinition) {
 	if ShouldOmit(s.CustomDomain) {
 		s.CustomDomain = nil
 	}
+
+	s.CustomDomainCertificates = api.Certificates
 
 	if s.DetailedActivityLogs == nil {
 		s.DetailedActivityLogs = &DetailedActivityLogs{}
@@ -104,6 +112,8 @@ func (s *Server) ExtractTo(api *apidef.APIDefinition) {
 	}
 
 	s.CustomDomain.ExtractTo(api)
+
+	api.Certificates = s.CustomDomainCertificates
 
 	if s.DetailedActivityLogs == nil {
 		s.DetailedActivityLogs = &DetailedActivityLogs{}

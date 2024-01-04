@@ -310,6 +310,11 @@ CustomDomain is the domain to bind this API to.
 
 Tyk classic API definition: `domain`.
 
+**Field: `customDomainCertificates` (`[]string`)**
+CustomDomainCertificates defines a field for specifying certificate IDs or file paths that the Gateway can utilize to dynamically load certificates for your custom domain.
+
+Tyk classic API definition: `certificates`.
+
 **Field: `detailedActivityLogs` ([DetailedActivityLogs](#detailedactivitylogs))**
 DetailedActivityLogs configures detailed analytics recording.
 
