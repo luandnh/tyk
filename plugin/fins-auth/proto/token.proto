@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package proto.aaa;
+
+option go_package = "github.com/tel4vn/fins-microservices/gen/proto/pb;pb";
+
+message AuthUser {
+  string tenant_id = 1;
+  string business_unit_id = 2;
+  string user_id = 3;
+  string username = 4;
+  string database_host = 5;
+  uint32 database_port = 6;
+  string database_name = 7;
+  string database_user = 8;
+  string database_password = 9;
+  repeated string services = 10;
+  string level = 11;
+  string group_id = 12;
+}
+
+message VerifyTokenResponse {
+  string code = 1;
+  string message = 2;
+  AuthUser data = 3;
+}
+
+message VerifyTokenRequest { string token = 1; }
+
+service TokenService {
+  rpc VerifyToken(VerifyTokenRequest) returns (VerifyTokenResponse);
+}
