@@ -18,6 +18,14 @@ import (
 const ERR_TOKEN_IS_EMPTY = "token is empty"
 const ERR_TOKEN_IS_INVALID = "token is invalid"
 const ERR_TOKEN_IS_EXPIRED = "token is expired"
+const ERR_INTERNAL_SERVER_ERROR = "internal server error"
+
+var MAP_ERROR = map[string]string{
+	ERR_TOKEN_IS_EMPTY:        "ERR_TOKEN_IS_EMPTY",
+	ERR_TOKEN_IS_INVALID:      "ERR_TOKEN_IS_INVALID",
+	ERR_TOKEN_IS_EXPIRED:      "ERR_TOKEN_IS_EXPIRED",
+	ERR_INTERNAL_SERVER_ERROR: "ERR_INTERNAL_SERVER_ERROR",
+}
 
 var skipRoutes = []string{
 	// "/health",
@@ -89,9 +97,15 @@ func inArrayContains(item string, array []string) bool {
 	return false
 }
 
-func responseJson(w http.ResponseWriter, code, message string) {
+func responseJson(w http.ResponseWriter, httpStatusInt int, code, message string) {
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(httpStatusInt)
+	errCode, ok := MAP_ERROR[code]
+	if !ok {
+		errCode = "ERR_INTERNAL_SERVER_ERROR"
+	}
 	res := map[string]any{
-		"code":    code,
+		"code":    errCode,
 		"message": message,
 	}
 	jsonResult, _ := json.Marshal(res)
@@ -125,7 +139,7 @@ func FinsAuthMiddleware(resw http.ResponseWriter, req *http.Request) {
 	}
 	token := getToken(req.Header.Get("Authorization"))
 	if len(token) < 1 {
-		responseJson(resw, ERR_TOKEN_IS_EMPTY, "unauthorized")
+		responseJson(resw, http.StatusUnauthorized, "ERR_TOKEN_IS_EMPTY", "unauthorized")
 		return
 	}
 	res, err := GRPC_CLI.Client.VerifyToken(req.Context(), &pb.VerifyTokenRequest{Token: token})
@@ -137,11 +151,11 @@ func FinsAuthMiddleware(resw http.ResponseWriter, req *http.Request) {
 				if err.Error() == ERR_TOKEN_IS_EXPIRED {
 					code = ERR_TOKEN_IS_INVALID
 				}
-				responseJson(resw, code, e.Message())
+				responseJson(resw, http.StatusUnauthorized, code, e.Message())
 				return
 			}
 		}
-		responseJson(resw, "INTERNAL_SERVER_ERROR", err.Error())
+		responseJson(resw, http.StatusInternalServerError, ERR_INTERNAL_SERVER_ERROR, err.Error())
 		return
 	}
 	data := res.GetData()
